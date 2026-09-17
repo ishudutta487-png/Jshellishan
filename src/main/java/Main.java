@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // System.out.print("$ ");
+        // TODO: Uncomment the code below to pass the first stage
+       
     }
 }
