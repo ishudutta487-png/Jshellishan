@@ -2,6 +2,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -13,43 +14,70 @@ public class Main {
 
         while (true) {
             System.out.print("$ ");
-            String input = sc.nextLine().trim();
+            if (!sc.hasNextLine()) {
+                break;
+            }
 
+            String input = sc.nextLine().trim();
             if (input.isEmpty()) {
                 continue;
             }
 
-            if (input.equals("exit") || input.startsWith("exit ")) {
+            String[] tokens = input.split("\\s+");
+            String command = tokens[0];
+
+            if (command.equals("exit")) {
                 break;
-            } else if (input.startsWith("echo ")) {
-                System.out.println(input.substring(5));
-            } else if (input.startsWith("type ")) {
-                String target = input.substring(5).trim();
-                handleType(target);
+            } else if (command.equals("echo")) {
+                if (tokens.length > 1) {
+                    System.out.println(String.join(" ", Arrays.copyOfRange(tokens, 1, tokens.length)));
+                } else {
+                    System.out.println();
+                }
+            } else if (command.equals("type")) {
+                if (tokens.length > 1) {
+                    handleType(tokens[1]);
+                }
             } else {
-                System.out.println(input + ": command not found");
+                Path execPath = findExecutable(command);
+                if (execPath != null) {
+                    tokens[0] = execPath.toString();
+                    Process process = new ProcessBuilder(tokens).inheritIO().start();
+                    process.waitFor();
+                } else {
+                    System.out.println(command + ": command not found");
+                }
             }
         }
     }
 
-    private static void handleType(String command) {
-        if (BUILTINS.contains(command)) {
-            System.out.println(command + " is a shell builtin");
+    private static void handleType(String cmd) {
+        if (BUILTINS.contains(cmd)) {
+            System.out.println(cmd + " is a shell builtin");
             return;
         }
 
+        Path execPath = findExecutable(cmd);
+        if (execPath != null) {
+            System.out.println(cmd + " is " + execPath);
+        } else {
+            System.out.println(cmd + ": not found");
+        }
+    }
+
+    private static Path findExecutable(String cmd) {
         String pathEnv = System.getenv("PATH");
-        if (pathEnv != null) {
-            String[] directories = pathEnv.split(File.pathSeparator);
-            for (String dir : directories) {
-                Path filePath = Paths.get(dir, command);
-                if (Files.isRegularFile(filePath) && Files.isExecutable(filePath)) {
-                    System.out.println(command + " is " + filePath);
-                    return;
-                }
-            }
+        if (pathEnv == null) {
+            return null;
         }
 
-        System.out.println(command + ": not found");
+        String[] directories = pathEnv.split(File.pathSeparator);
+        for (String dir : directories) {
+            Path filePath = Paths.get(dir, cmd);
+            if (Files.isRegularFile(filePath) && Files.isExecutable(filePath)) {
+                return filePath;
+            }
+        }
+        return null;
     }
 }
