@@ -41,7 +41,8 @@ public class Main {
             } else {
                 Path execPath = findExecutable(command);
                 if (execPath != null) {
-                    tokens[0] = execPath.toString();
+                    // FIX: Pass the original tokens directly. 
+                    // ProcessBuilder will use PATH to find the executable and pass the short name as arg 0.
                     Process process = new ProcessBuilder(tokens).inheritIO().start();
                     process.waitFor();
                 } else {
