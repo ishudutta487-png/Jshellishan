@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
-    private static final Set<String> BUILTINS = Set.of("echo", "exit", "type");
+    private static final Set<String> BUILTINS = Set.of("echo", "exit", "type". "pwd");
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
