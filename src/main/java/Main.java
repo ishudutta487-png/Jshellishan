@@ -7,7 +7,8 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
-    private static final Set<String> BUILTINS = Set.of("echo", "exit", "type". "pwd");
+    // FIX 1: Use a comma instead of a period
+    private static final Set<String> BUILTINS = Set.of("echo", "exit", "type", "pwd");
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -38,11 +39,12 @@ public class Main {
                 if (tokens.length > 1) {
                     handleType(tokens[1]);
                 }
+            } else if (command.equals("pwd")) {
+                // FIX 2: Handle the pwd command
+                System.out.println(System.getProperty("user.dir"));
             } else {
                 Path execPath = findExecutable(command);
                 if (execPath != null) {
-                    // FIX: Pass the original tokens directly. 
-                    // ProcessBuilder will use PATH to find the executable and pass the short name as arg 0.
                     Process process = new ProcessBuilder(tokens).inheritIO().start();
                     process.waitFor();
                 } else {
