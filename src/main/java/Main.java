@@ -45,6 +45,9 @@ public class Main {
                 // 2. Handle the cd command
                 if (tokens.length > 1) {
                     String targetDir = tokens[1];
+                    if (targetDir.equals("~")) {
+                        targetDir = System.getenv("HOME");
+                    }
                     Path currentDir = Paths.get(System.getProperty("user.dir"));
                     Path targetPath = currentDir.resolve(targetDir).normalize();
                     if (Files.isDirectory(targetPath)) {
