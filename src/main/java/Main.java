@@ -104,7 +104,7 @@ public class Main {
         }
         return null;
     }
-}
+
 private static String[] parseInput(String input) {
         List<String> args = new ArrayList<>();
         StringBuilder currentArg = new StringBuilder();
@@ -133,3 +133,5 @@ private static String[] parseInput(String input) {
 
         return args.toArray(new String[0]);
     }
+
+}
