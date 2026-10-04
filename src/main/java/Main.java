@@ -7,8 +7,8 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
-    // FIX 1: Use a comma instead of a period
-    private static final Set<String> BUILTINS = Set.of("echo", "exit", "type", "pwd");
+    // 1. Add "cd" to the set of builtins
+    private static final Set<String> BUILTINS = Set.of("echo", "exit", "type", "pwd", "cd");
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -40,12 +40,28 @@ public class Main {
                     handleType(tokens[1]);
                 }
             } else if (command.equals("pwd")) {
-                // FIX 2: Handle the pwd command
                 System.out.println(System.getProperty("user.dir"));
+            } else if (command.equals("cd")) {
+                // 2. Handle the cd command
+                if (tokens.length > 1) {
+                    String targetDir = tokens[1];
+                    Path targetPath = Paths.get(targetDir);
+                    
+                    if (Files.isDirectory(targetPath)) {
+                        // Change the directory by updating the system property
+                        System.setProperty("user.dir", targetPath.normalize().toString());
+                    } else {
+                        // Print the required error format if it doesn't exist
+                        System.out.println("cd: " + targetDir + ": No such file or directory");
+                    }
+                }
             } else {
                 Path execPath = findExecutable(command);
                 if (execPath != null) {
-                    Process process = new ProcessBuilder(tokens).inheritIO().start();
+                    ProcessBuilder pb = new ProcessBuilder(tokens);
+                    // 3. Ensure external processes run in the updated directory
+                    pb.directory(new File(System.getProperty("user.dir")));
+                    Process process = pb.inheritIO().start();
                     process.waitFor();
                 } else {
                     System.out.println(command + ": command not found");
