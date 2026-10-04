@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +26,7 @@ public class Main {
                 continue;
             }
 
-            String[] tokens = input.split("\\s+");
+            String[] tokens = parseInput(input);
             String command = tokens[0];
 
             if (command.equals("exit")) {
@@ -103,3 +105,31 @@ public class Main {
         return null;
     }
 }
+private static String[] parseInput(String input) {
+        List<String> args = new ArrayList<>();
+        StringBuilder currentArg = new StringBuilder();
+        boolean inSingleQuote = false;
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            if (c == '\'') {
+                inSingleQuote = !inSingleQuote; // Toggle state when we hit a quote
+            } else if (c == ' ' && !inSingleQuote) {
+                // If we hit a space OUTSIDE of quotes, finish the current argument
+                if (currentArg.length() > 0) {
+                    args.add(currentArg.toString());
+                    currentArg.setLength(0);
+                }
+            } else {
+                currentArg.append(c);
+            }
+        }
+        
+        // Add the very last argument if there is one
+        if (currentArg.length() > 0) {
+            args.add(currentArg.toString());
+        }
+
+        return args.toArray(new String[0]);
+    }
